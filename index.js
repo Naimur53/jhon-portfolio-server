@@ -9,6 +9,7 @@ const cloudinary = require('cloudinary').v2;
 const fileUpload = require('express-fileupload');
 const blog = require('./models/blog');
 const user = require('./models/user');
+const { updateMany } = require('./models/blog');
 // cloudinary config 
 cloudinary.config({
     cloud_name: 'dvor8fuxv',
@@ -56,13 +57,16 @@ async function run() {
             // const result = await categories.create(req.body)
             try {
 
-                const id = req.query.id
+                const { id, short } = req.query
                 console.log(id);
                 let result;
                 if (id) {
 
                     result = await blog.findById(id)
-                } else {
+                } else if (short) {
+                    result = await blog.find({}).select('heading description img address date').limit(10);
+                }
+                else {
                     result = await blog.find({}).select('comments love heading description img address date');
                 }
                 res.json(result);
@@ -214,6 +218,12 @@ async function run() {
             const result = await user.updateOne(filter, updateDoc, options);
             console.log(result);
             res.json(result);
+
+        })
+        app.post('/sendMail', async (req, res) => {
+            const data = req.body;
+            console.log(data);
+            res.json({ res: 'done' });
 
         })
 

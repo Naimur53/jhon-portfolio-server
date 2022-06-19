@@ -15,7 +15,9 @@ const categoriesSchema = new mongoose.Schema({
     categoryName: String,
     title: String,
     description: String,
-    photos: [photoSchema],
+    photos: [String],
 
 })
 module.exports = mongoose.models.categories || mongoose.model("categories", categoriesSchema);
+
+
