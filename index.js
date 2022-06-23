@@ -10,6 +10,7 @@ const fileUpload = require('express-fileupload');
 const blog = require('./models/blog');
 const user = require('./models/user');
 const { updateMany } = require('./models/blog');
+const nodemailer = require("nodemailer");
 // cloudinary config 
 cloudinary.config({
     cloud_name: 'dvor8fuxv',
@@ -221,9 +222,34 @@ async function run() {
 
         })
         app.post('/sendMail', async (req, res) => {
-            const data = req.body;
-            console.log(data);
-            res.json({ res: 'done' });
+
+            const { displayName, email, comment } = req.body;
+            console.log({ displayName, email, comment });
+            // create reusable transporter object using the default SMTP transport
+            const transport = await nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: "naimurrhman53@gmail.com",
+                    pass: "effyzuelazwgppnz"
+                }
+            });
+            // send mail with defined transport object
+            const mailOptions = {
+                from: req.body.email,
+                to: 'naimurrhman53@gmail.com',
+                subject: req.body.name,
+                html: `<b>Location:dfdfdfd</b> `,
+            }
+            await transport.sendMail(mailOptions, function (error, response) {
+                if (error) {
+                    res.send("Email could not sent due to error: " + error);
+                    console.log(error);
+                    console.log('Error');
+                } else {
+                    res.send("Email has been sent successfully");
+                    console.log('mail sent');
+                }
+            })
 
         })
 
@@ -241,6 +267,23 @@ async function run() {
                 res.status(400).json({ error: 'bad req' })
             }
         })
+        app.get('/uniqCategory', async (req, res) => {
+            try {
+
+                const result = await categories.distinct("categoryName")
+                console.log(result, 'res');
+                res.json(result);
+            }
+            catch (e) {
+                res.status(400).json({ error: 'bad req' })
+            }
+        })
+
+
+
+
+
+
         app.post('/video', async (req, res) => {
             console.log('the file', req.files.video);
             const file = req.files?.video;

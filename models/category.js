@@ -12,8 +12,12 @@ const photoSchema = new mongoose.Schema({
 })
 const categoriesSchema = new mongoose.Schema({
     thumbnail: String,
-    categoryName: String,
+    categoryName: {
+        type: String,
+        required: true,
+    },
     title: String,
+    subCategory: String,
     description: String,
     photos: [String],
 
