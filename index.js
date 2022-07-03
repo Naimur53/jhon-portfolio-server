@@ -94,6 +94,28 @@ async function run() {
                 res.status(400).json({ error: 'bad req', })
             }
         })
+        app.post('/chooseMenu', async (req, res) => {
+            try {
+                const data = req.body
+                const deleting = await menu.deleteMany({});
+                const result = await menu.create(data);
+                res.json(result);
+            }
+            catch (e) {
+                res.status(400).json({ error: 'bad req', })
+            }
+        })
+        app.get('/uniqCategory', async (req, res) => {
+            try {
+
+                const result = await categories.distinct("categoryName")
+                console.log(result, 'res');
+                res.json(result);
+            }
+            catch (e) {
+                res.status(400).json({ error: 'bad req', })
+            }
+        })
         app.get('/blog', async (req, res) => {
             // const result = await categories.create(req.body)
             try {
