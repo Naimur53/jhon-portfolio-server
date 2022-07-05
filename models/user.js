@@ -6,6 +6,10 @@ const userSchema = new mongoose.Schema({
     email: String,
     photoURL: String,
     createdAt: String,
+    isAdmin: {
+        type: Boolean,
+        default: false,
+    },
     uid: String,
 
 })

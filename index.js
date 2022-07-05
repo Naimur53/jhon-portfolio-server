@@ -273,14 +273,19 @@ async function run() {
         })
 
         app.put('/user', async (req, res) => {
-            const data = req.body;
-            console.log(data);
-            const filter = { email: data.email };
-            const options = { upsert: true }
-            const updateDoc = { $set: data }
-            const result = await user.updateOne(filter, updateDoc, options);
-            console.log(result);
-            res.json(result);
+            try {
+                const data = req.body;
+                console.log(data);
+                const filter = { email: data.email };
+                const options = { upsert: true }
+                const updateDoc = { $set: data }
+                const result = await user.updateOne(filter, updateDoc, options);
+                console.log(result);
+                res.json(result);
+            }
+            catch {
+                res.status(404).json({ error: 'data cant be save' });
+            }
 
         })
         app.post('/sendMail', async (req, res) => {
