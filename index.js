@@ -14,9 +14,9 @@ const { updateMany } = require('./models/blog');
 const nodemailer = require("nodemailer");
 // cloudinary config 
 cloudinary.config({
-    cloud_name: 'dvor8fuxv',
-    api_key: '162697393682668',
-    api_secret: 'q3XbKDfcKDn7DCHRZdRfdH_tjl4',
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_secret: process.env.API_SECRET,
     secure: true
 });
 //middle
@@ -27,7 +27,7 @@ app.use(fileUpload({
     tempFileDir: '/tmp/'
 }));
 
-const uri = "mongodb+srv://learning-database:n4Jecc0URZJL35YK@cluster0.icikx.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.icikx.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 
 mongoose.connect(uri, () => {
     console.log('connect')
@@ -298,7 +298,7 @@ async function run() {
                     service: 'gmail',
                     auth: {
                         user: "naimurrhman53@gmail.com",
-                        pass: "effyzuelazwgppnz"
+                        pass: process.env.USER_PASS
                     }
                 });
                 // send mail with defined transport object
