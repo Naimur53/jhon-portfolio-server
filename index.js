@@ -30,7 +30,7 @@ app.use(fileUpload({
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.icikx.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 
 mongoose.connect(uri, () => {
-    console.log('connect')
+    console.log('connect', uri)
 }, e => console.log(e))
 
 async function run() {
