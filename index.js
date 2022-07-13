@@ -250,7 +250,7 @@ async function run() {
                     const thatBlog = await blog.findById(id);
                     const res = await thatBlog.love.push(data)
                     const rs = await thatBlog.save()
-                    res.json(rs);
+                    res.json({ success: 'successfully saved' });
                 }
             } catch (e) {
                 console.log(e);
