@@ -278,8 +278,22 @@ async function run() {
 
         });
         app.get('/user', async (req, res) => {
-            const allUser = await user.find({});
-            res.json(allUser)
+            const { email } = req.query;
+            console.log(email, 'iddd');
+            try {
+                if (email) {
+                    const result = await user.findOne({ email });
+                    console.log(result);
+                    res.json(result);
+                }
+                else {
+                    const allUser = await user.find({});
+                    res.json(allUser)
+                }
+            } catch (e) {
+                console.log(e);
+                res.status(400).json({ error: 'something bd' })
+            }
 
         })
 
