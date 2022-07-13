@@ -84,6 +84,17 @@ async function run() {
                 res.status(400).json({ error: 'bad req' })
             }
         })
+        app.get('/photostream', async (req, res) => {
+            try {
+                const result = await categories.findOne({}).select('photos');
+                console.log(result);
+                res.json(result);
+            }
+            catch (e) {
+                console.log(e);
+                res.status(400).json({ error: 'bad req', })
+            }
+        })
         app.get('/chooseMenu', async (req, res) => {
             try {
                 const result = await menu.find({});
@@ -272,6 +283,7 @@ async function run() {
 
         })
 
+
         app.put('/user', async (req, res) => {
             try {
                 const data = req.body;
@@ -348,6 +360,57 @@ async function run() {
 
             res.json({ url })
         })
+        //dashboard
+        app.get('/totalUser', async (req, res) => {
+            const allUser = await user.count();
+            res.json({ user: allUser })
+
+        })
+        app.get('/totalCategories', async (req, res) => {
+            const allCategories = await categories.count();
+            res.json({ categories: allCategories })
+
+        })
+        app.get('/last7blog', async (req, res) => {
+            // const last7blog = await blog.find().sort({ _id: -1 }).limit(7).select('comments love')
+            const result = await blog.aggregate([
+                {
+                    "$project":
+                        { comment: { $size: "$comments" }, love: { $size: "$love" }, date: 1 }
+                },
+                { $sort: { _id: -1 } },
+                { $limit: 7 }
+            ])
+            res.json(result)
+
+        })
+        app.get('/blogTotalLC', async (req, res) => {
+            try {
+                const result = await blog.aggregate([
+                    {
+                        "$project":
+                            { comment: { $size: "$comments" }, love: { $size: "$love" } }
+                    }
+                ])
+                res.json(result);
+            }
+            catch (e) {
+                console.log(e);
+                res.status(400).json({ error: e.message })
+            }
+        })
+        app.get('/blogCount', async (req, res) => {
+            try {
+                const result = await blog.count()
+                res.json({ blog: result });
+            }
+            catch (e) {
+                console.log(e);
+                res.status(400).json({ error: e.message })
+            }
+        })
+
+
     }
     catch (e) {
 
