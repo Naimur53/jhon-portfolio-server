@@ -10,8 +10,31 @@ const fileUpload = require('express-fileupload');
 const blog = require('./models/blog');
 const user = require('./models/user');
 const menu = require('./models/menu');
+const { initializeApp } = require('firebase-admin/app');
+const admin = require("firebase-admin");
+
 const { updateMany } = require('./models/blog');
 const nodemailer = require("nodemailer");
+
+// firebase admin init
+
+const serviceAccount = {
+    type: process.env.type,
+    project_id: process.env.project_id,
+    private_key_id: process.env.private_key_id,
+    private_key: process.env.private_key,
+    client_email: process.env.client_email,
+    client_id: process.env.client_id,
+    auth_uri: process.env.auth_uri,
+    token_uri: process.env.token_uri,
+    auth_provider_x509_cert_url: process.env.auth_provider_x509_cert_url,
+    client_x509_cert_url: process.env.client_x509_cert_url,
+};
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
+
 // cloudinary config 
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,
@@ -33,6 +56,24 @@ mongoose.connect(uri, () => {
     console.log('connect', uri)
 }, e => console.log(e))
 
+async function verifyToken(req, res, next) {
+    console.log(req.headers.authorization, 'hears');
+    if (req.headers.authorization?.startsWith('Bearer ')) {
+        const idToken = req.headers.authorization.split('Bearer ')[1];
+        try {
+            const decodedUser = await admin.auth().verifyIdToken(idToken)
+            req.decodedUserEmail = decodedUser.email
+        }
+        catch {
+
+        }
+    }
+    next();
+}
+console.log(
+
+)
+
 async function run() {
     try {
         app.get('/category', async (req, res) => {
@@ -50,14 +91,47 @@ async function run() {
             }
             else {
                 result = await categories.find({})
-
             }
             res.json(result);
         })
-        app.post('/category', async (req, res) => {
-            const result = await categories.create(req.body)
+        app.post('/category', verifyToken, async (req, res) => {
+            const data = req.body
+            try {
+                if (data?.user === req?.decodedUserEmail) {
+                    const result = await categories.create(req.body?.mainData);
+                    // console.log('reslut');
+                    res.json(result);
+                } else {
+                    res.status(400).json({ error: 'UnAuthorize' })
+                }
+            } catch (e) {
+                console.log(e);
+                res.status(400).json({ error: 'bad req' })
+            }
 
-            res.json(result);
+
+        })
+        app.put('/category', verifyToken, async (req, res) => {
+            const data = req.body;
+            const id = req.query?.id
+            console.log({ id, email: req?.decodedUserEmail, });
+            try {
+                if (data?.user === req?.decodedUserEmail) {
+                    const result = await categories.findByIdAndUpdate(id, data.mainData);
+
+                    console.log('result');
+                    res.json(result);
+                } else {
+                    res.status(400).json({ error: 'UnAuthorize' })
+                }
+
+            } catch (e) {
+                res.status(400).json({ error: 'bad req' })
+
+            }
+            // const result = await categories.create(req.body)
+
+
         })
 
         app.get('/singleCategory', async (req, res) => {
@@ -73,12 +147,19 @@ async function run() {
                 res.status(400).json({ error: 'bad req' })
             }
         })
-        app.delete('/category', async (req, res) => {
+        app.delete('/category', verifyToken, async (req, res) => {
             try {
-                const id = req.query.id
-                console.log(id);
-                const result = await categories.findById(id);
-                res.json({});
+                const id = req.query.id;
+                if (req.body?.user === req?.decodedUserEmail) {
+                    console.log('toi valo re');
+
+                    const result = await categories.findById(id);
+                    res.json({});
+                }
+                else {
+                    res.status(400).json({ error: 'UnAuthorize' })
+                }
+
             }
             catch (e) {
                 res.status(400).json({ error: 'bad req' })
@@ -138,7 +219,7 @@ async function run() {
 
                     result = await blog.findById(id)
                 } else if (short) {
-                    result = await blog.find({}).select('heading description img address date').limit(10);
+                    result = await blog.find({}).sort({ _id: 1 }).select('heading description img address date').limit(10);
                 }
                 else {
                     result = await blog.find({}).select('comments love heading description img address date');
@@ -187,12 +268,20 @@ async function run() {
                 res.status(400).json({ error: 'bad req' })
             }
         })
-        app.post('/blog', async (req, res) => {
-            // const result = await categories.create(req.body)
-            const createBlog = new blog(req.body);
-            const result = await createBlog.save();
-            console.log(result, 'res');
-            res.json({ result });
+        app.post('/blog', verifyToken, async (req, res) => {
+            const data = req.body;
+            try {
+                if (data?.user === req?.decodedUserEmail) {
+                    const createBlog = new blog(data.mainData);
+                    const result = await createBlog.save();
+                    res.json(result);
+                } else {
+                    res.status(400).json({ error: 'UnAuthorize' })
+                }
+            } catch (e) {
+                res.status(400).json({ error: 'bad req' })
+            }
+
         })
 
         app.put('/blog/comment', async (req, res) => {
