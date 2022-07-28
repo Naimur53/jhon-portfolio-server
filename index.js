@@ -43,7 +43,11 @@ cloudinary.config({
     secure: true
 });
 //middle
-app.use(cors())
+var corsOptions = {
+    origin: ['http://localhost:5000', 'http://john-pink.vercel.app/'],
+    optionsSuccessStatus: 200
+}
+app.use(cors(corsOptions))
 app.use(express.json());
 app.use(fileUpload({
     useTempFiles: true,
