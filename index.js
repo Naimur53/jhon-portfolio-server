@@ -61,11 +61,12 @@ mongoose.connect(uri, () => {
 }, e => console.log(e))
 
 async function verifyToken(req, res, next) {
-    console.log(req.headers.authorization, 'hears');
+
     if (req.headers.authorization?.startsWith('Bearer ')) {
         const idToken = req.headers.authorization.split('Bearer ')[1];
         try {
             const decodedUser = await admin.auth().verifyIdToken(idToken)
+            console.log(decodedUser.email, 'hears');
             req.decodedUserEmail = decodedUser.email
         }
         catch {
@@ -157,8 +158,8 @@ async function run() {
                 if (req.body?.user === req?.decodedUserEmail) {
                     console.log('toi valo re');
 
-                    const result = await categories.findById(id);
-                    res.json({});
+                    const result = await categories.findByIdAndDelete(id);
+                    res.json(result);
                 }
                 else {
                     res.status(400).json({ error: 'UnAuthorize' })
@@ -353,15 +354,23 @@ async function run() {
 
         })
         //delete blog 
-        app.delete('/blog/delete', async (req, res) => {
-            // const result = await categories.create(req.body)
+        app.delete('/blog/delete', verifyToken, async (req, res) => {
             const { id } = req.query;
-            console.log(id, 'iddd');
+            const data = req.body;
+            console.log(data.user, req?.decodedUserEmail);
             try {
-                if (id) {
-                    const result = await blog.findByIdAndDelete(id);
-                    console.log(result);
-                    res.json(result);
+                if (data?.user === req?.decodedUserEmail) {
+                    if (id) {
+                        const result = await blog.findByIdAndDelete(id);
+                        // console.log(result);
+                        console.log('delete');
+                        res.json(result);
+                    } else {
+                        res.status(400).json({ error: 'something bad' })
+
+                    }
+                } else {
+                    res.status(400).json({ error: 'UnAuthorize' })
                 }
             } catch (e) {
                 console.log(e);
