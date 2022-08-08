@@ -61,15 +61,17 @@ mongoose.connect(uri, () => {
 }, e => console.log(e))
 
 async function verifyToken(req, res, next) {
-
     if (req.headers.authorization?.startsWith('Bearer ')) {
         const idToken = req.headers.authorization.split('Bearer ')[1];
+
         try {
             const decodedUser = await admin.auth().verifyIdToken(idToken)
+
             console.log(decodedUser.email, 'hears');
             req.decodedUserEmail = decodedUser.email
         }
-        catch {
+        catch (e) {
+            console.log('dfdkfdf', e);
 
         }
     }
@@ -275,6 +277,7 @@ async function run() {
         })
         app.post('/blog', verifyToken, async (req, res) => {
             const data = req.body;
+            console.log(req.decodedUserEmail);
             try {
                 if (data?.user === req?.decodedUserEmail) {
                     const createBlog = new blog(data.mainData);
@@ -284,6 +287,30 @@ async function run() {
                     res.status(400).json({ error: 'UnAuthorize' })
                 }
             } catch (e) {
+                console.log(e, 'eeror');
+                res.status(400).json({ error: 'bad req' })
+            }
+
+        })
+        app.put('/blog', verifyToken, async (req, res) => {
+            const data = req.body;
+            const { id } = req.query
+            console.log(id, data);
+
+            console.log();
+            try {
+                if (data?.user === req?.decodedUserEmail) {
+                    // const createBlog = new blog(data.mainData);
+                    // const result = await createBlog.save();
+
+                    const result = await blog.findByIdAndUpdate(id, data.mainData);
+                    console.log(result);
+                    res.json(result);
+                } else {
+                    res.status(400).json({ error: 'UnAuthorize' })
+                }
+            } catch (e) {
+                console.log(e, 'eeror');
                 res.status(400).json({ error: 'bad req' })
             }
 
