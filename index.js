@@ -13,6 +13,8 @@ const menu = require('./models/menu');
 const { initializeApp } = require('firebase-admin/app');
 const admin = require("firebase-admin");
 
+
+
 const { updateMany } = require('./models/blog');
 const nodemailer = require("nodemailer");
 
@@ -77,9 +79,12 @@ async function verifyToken(req, res, next) {
     }
     next();
 }
-console.log(
-
-)
+const uuid = function () {
+    // Math.random should be unique because of its seeding algorithm.
+    // Convert it to base 36 (numbers + letters), and grab the first 9 characters
+    // after the decimal.
+    return Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+};
 
 async function run() {
     try {
@@ -481,6 +486,33 @@ async function run() {
 
 
 
+        app.post('/uplaodImage', async (req, res) => {
+            const file = req.files;
+            try {
+                let url;
+                console.log(file, 'get the fiel', uuid());
+                if (file) {
+
+                    await cloudinary.uploader.upload(file.image.tempFilePath,
+                        {
+                            resource_type: "image", public_id: "myfolder/images/" + file.image?.name.split('.')[0] + uuid(),
+                            overwrite: true,
+                        },
+                        function (error, result) {
+                            if (result) {
+                                url = result.url
+                            }
+                            console.log({ result, error })
+                        });
+                }
+
+                console.log(url);
+                res.json({ data: { url } })
+            }
+            catch (e) {
+                res.json({ url: undefined })
+            }
+        })
         app.post('/video', async (req, res) => {
             console.log('the file', req.files.video);
             const file = req.files?.video;
@@ -503,28 +535,6 @@ async function run() {
 
             res.json({ url })
         })
-        // app.post('/uploadImage', async (req, res) => {
-        //     console.log('the file', req.files.video);
-        //     const file = req.files?.video;
-        //     let url;
-        //     if (file) {
-
-        //         await cloudinary.uploader.upload(file.tempFilePath,
-        //             {
-        //                 resource_type: "video", public_id: "myfolder/mysubfolder/" + file.name.split('.')[0],
-        //                 overwrite: true,
-        //             },
-        //             function (error, result) {
-        //                 if (result) {
-        //                     url = result.url
-        //                 }
-        //                 console.log(result, error)
-        //             });
-        //     }
-
-
-        //     res.json({ url })
-        // })
         //dashboard
         app.get('/totalUser', async (req, res) => {
             const allUser = await user.count();
