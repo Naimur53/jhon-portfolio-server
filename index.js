@@ -295,7 +295,7 @@ async function run() {
         app.put('/blog', verifyToken, async (req, res) => {
             const data = req.body;
             const { id } = req.query
-            console.log(id, data);
+            console.log(id, data.sections);
 
             console.log();
             try {
@@ -503,6 +503,28 @@ async function run() {
 
             res.json({ url })
         })
+        // app.post('/uploadImage', async (req, res) => {
+        //     console.log('the file', req.files.video);
+        //     const file = req.files?.video;
+        //     let url;
+        //     if (file) {
+
+        //         await cloudinary.uploader.upload(file.tempFilePath,
+        //             {
+        //                 resource_type: "video", public_id: "myfolder/mysubfolder/" + file.name.split('.')[0],
+        //                 overwrite: true,
+        //             },
+        //             function (error, result) {
+        //                 if (result) {
+        //                     url = result.url
+        //                 }
+        //                 console.log(result, error)
+        //             });
+        //     }
+
+
+        //     res.json({ url })
+        // })
         //dashboard
         app.get('/totalUser', async (req, res) => {
             const allUser = await user.count();

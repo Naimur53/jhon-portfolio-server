@@ -17,6 +17,10 @@ const imgSchema = new mongoose.Schema({
 const sectionSchema = new mongoose.Schema({
     title: String,
     description: String,
+    url: {
+        type: String,
+        default: '',
+    },
     img: [imgSchema],
     video: '',
 })
