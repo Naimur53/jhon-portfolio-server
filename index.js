@@ -10,6 +10,7 @@ const fileUpload = require('express-fileupload');
 const blog = require('./models/blog');
 const user = require('./models/user');
 const menu = require('./models/menu');
+const bio = require('./models/bio');
 const { initializeApp } = require('firebase-admin/app');
 const admin = require("firebase-admin");
 
@@ -234,7 +235,8 @@ async function run() {
                     result = await blog.find({}).sort({ _id: 1 }).select('heading description img address date').limit(10);
                 }
                 else {
-                    result = await blog.find({}).select('comments love heading description img address date');
+                    // result = await blog.find({}).select('comments love heading description img address date');
+                    result = await blog.find({});
                 }
                 res.json(result);
             }
@@ -411,6 +413,71 @@ async function run() {
 
 
         });
+
+        // add bio route 
+        app.get('/bio', async (req, res) => {
+            // const result = await categories.create(req.body)
+            try {
+                const result = await bio.findOne({});
+                if (result?._id) {
+
+                    res.json(result);
+                }
+                else {
+                    res.json({});
+
+                }
+            }
+            catch (e) {
+                res.status(400).json({ error: 'bad req' })
+            }
+        })
+
+        app.post('/bio', verifyToken, async (req, res) => {
+            const data = req.body;
+            console.log(req.decodedUserEmail);
+            try {
+                if (data?.user === req?.decodedUserEmail) {
+                    const createBio = new bio(data.mainData);
+                    const result = await createBio.save();
+                    console.log(result, 'post the data')
+                    res.json(result);
+                } else {
+                    res.status(400).json({ error: 'UnAuthorize' })
+                }
+            } catch (e) {
+                console.log(e, 'eeror');
+                res.status(400).json({ error: 'bad req' })
+            }
+
+        })
+        app.put('/bio', verifyToken, async (req, res) => {
+            const data = req.body;
+            const { id } = req.query
+            console.log(id, data.mainData);
+
+            console.log();
+            try {
+                if (data?.user === req?.decodedUserEmail) {
+                    if (data?.mainData?._id) {
+
+                        delete data?.mainData?._id;
+                    }
+                    const result = await bio.findByIdAndUpdate(id, data.mainData);
+                    console.log(result);
+                    res.json({});
+                } else {
+                    res.status(400).json({ error: 'UnAuthorize' })
+                }
+            } catch (e) {
+                console.log(e, 'eeror');
+                res.status(400).json({ error: 'bad req' })
+            }
+
+        })
+
+        // user
+
         app.get('/user', async (req, res) => {
             const { email } = req.query;
             console.log(email, 'iddd');
