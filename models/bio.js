@@ -14,6 +14,10 @@ const sectionSchema = new mongoose.Schema({
     },
     img: [imgSchema],
     video: '',
+    column: {
+        type: Boolean,
+        default: false,
+    },
 })
 
 // main schema 
