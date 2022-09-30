@@ -440,7 +440,6 @@ async function run() {
                 if (data?.user === req?.decodedUserEmail) {
                     const createBio = new bio(data.mainData);
                     const result = await createBio.save();
-                    console.log(result, 'post the data')
                     res.json(result);
                 } else {
                     res.status(400).json({ error: 'UnAuthorize' })
