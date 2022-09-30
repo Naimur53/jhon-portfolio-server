@@ -18,6 +18,10 @@ const sectionSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    reverse: {
+        type: Boolean,
+        default: false,
+    },
 })
 
 // main schema 
