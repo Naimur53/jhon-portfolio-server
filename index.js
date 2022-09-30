@@ -95,7 +95,7 @@ async function run() {
             let result;
             if (short) {
 
-                result = await categories.find({}).select('_id thumbnail categoryName title description subCategory').limit(20)
+                result = await categories.find({}).select('_id thumbnail categoryName title description subCategory')
 
             }
             else if (normal) {
