@@ -90,10 +90,17 @@ const uuid = function () {
 async function run() {
     try {
         app.get('/category', async (req, res) => {
-            const { short, normal } = req.query;
+            const { short, normal, name, onlyMainCategory } = req.query;
             console.log(short);
             let result;
-            if (short) {
+            if (name) {
+                result = await categories.find({ categoryName: name })
+            }
+            else if (onlyMainCategory) {
+                result = await categories.find({ subCategory: undefined })
+
+            }
+            else if (short) {
 
                 result = await categories.find({}).select('_id thumbnail categoryName title description subCategory')
 
@@ -218,6 +225,7 @@ async function run() {
                 res.json(result);
             }
             catch (e) {
+                console.log(e, 'err')
                 res.status(400).json({ error: 'bad req', })
             }
         })
@@ -654,7 +662,7 @@ async function run() {
 
     }
     catch (e) {
-
+        console.log(e)
     }
 }
 
