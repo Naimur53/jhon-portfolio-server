@@ -47,7 +47,7 @@ cloudinary.config({
 });
 //middle
 var corsOptions = {
-    origin: ['http://localhost:3000', 'https://john-pink.vercel.app','https://photogrpher-portfolio.vercel.app/',],
+    origin: ['http://localhost:3000', 'https://john-pink.vercel.app','https://photogrpher-portfolio.vercel.app',],
     optionsSuccessStatus: 200
 }
 app.use(cors(corsOptions))
